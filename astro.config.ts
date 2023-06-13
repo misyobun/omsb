@@ -5,11 +5,10 @@ import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://aurora.thilohohlt.com",
+  site: "https://omsb.biz",
   compressHTML: true,
   experimental: {
     assets: true,
-    inlineStylesheets: "auto",
   },
   scopedStyleStrategy: "class",
   markdown: {
