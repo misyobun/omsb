@@ -1,5 +1,5 @@
 ---
-cover: "../../assets/blog/nix-flake-examples/cover.jpg"
+cover: "../../assets/blog/nix-flake-examples/sake_002.jpg"
 coverAlt: "Cover image for the blog post"
 title: "飲酒記録プライバシーポリシー"
 publicationDate: 2020-05-12
@@ -24,7 +24,7 @@ description: ""
         - リファラ
         - IPアドレス
         - サーバーアクセスログに関する情報
-        - Cookie、ADID、IDFAその他の識別子
+        - Cookie、ADID、広告識別子（IDFA または Google Advertising ID 等）、その他の識別子
 
 
 ## 利用目的
