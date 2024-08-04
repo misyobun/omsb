@@ -18,6 +18,7 @@ import Pagination from '../components/Pagination.astro'
 import BlogPostsLink from '../components/BlogPostsLink.astro'
 import BlogTagsLink from '../components/BlogTagsLink.astro'
 import styles from '../styles/blog.module.css'
+import SearchButton from '../components/SearchButton.astro'
 
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
   getPosts(NUMBER_OF_POSTS_PER_PAGE),
@@ -39,14 +40,14 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
             <PostTags post={post} />
             <PostTitle post={post} />
             <PostFeaturedImage post={post} />
-            <PostExcerpt post={post} />
-            <ReadMoreLink post={post} />
           </div>
         ))
       )
     }
 
     <footer>
+      <SearchButton />
+
       <Pagination currentPage={1} numberOfPages={numberOfPages} />
     </footer>
   </div>
@@ -55,4 +56,6 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
     <BlogPostsLink heading="Recommended" posts={rankedPosts} />
     <BlogTagsLink heading="Categories" tags={tags} />
   </div>
+
+
 </Layout>
