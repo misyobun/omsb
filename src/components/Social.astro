@@ -1,0 +1,23 @@
+---
+import Icon from 'astro-icon';
+
+interface Props {
+  platform: string;
+  username: string;
+  icon: string;
+  alt: string;
+  size?: string;
+}
+const { platform, username, icon, alt, size = "24" } = Astro.props;
+---
+
+<a href={`https://www.${platform}.com/${username}`} target="_blank" rel="noopener noreferrer" aria-label={alt} style="display: inline-flex; align-items: center;">
+  <Icon name={icon} width={size} height={size} />
+</a>
+
+<style>
+  a {
+    margin: 0 8px;
+    text-decoration: none;
+  }
+</style>

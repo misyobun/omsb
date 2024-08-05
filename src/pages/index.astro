@@ -17,7 +17,6 @@ import BlogPostsLink from '../components/BlogPostsLink.astro'
 import BlogTagsLink from '../components/BlogTagsLink.astro'
 import styles from '../styles/blog.module.css'
 import SearchButton from '../components/SearchButton.astro'
-
 const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
   getPosts(NUMBER_OF_POSTS_PER_PAGE),
   getRankedPosts(),
@@ -45,8 +44,7 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
 
     <footer>
       <SearchButton />
-
-      <Pagination currentPage={1} numberOfPages={numberOfPages} />
+      <Pagination currentPage={1} numberOfPages={numberOfPages} />    
     </footer>
   </div>
 

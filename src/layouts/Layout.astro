@@ -5,6 +5,7 @@ import { getNavLink, getStaticFilePath, filePath } from '../lib/blog-helpers.ts'
 import '../styles/syntax-coloring.css'
 import GoogleAnalytics from '../components/GoogleAnalytics.astro'
 import SearchModal from '../components/SearchModal.astro'
+import Social from '../components/Social.astro'
 
 export interface Props {
   title: string
@@ -90,42 +91,50 @@ if (database.Icon && database.Icon.Type === 'file') {
       <div>
         <main>
           <div class="content">
+            
             <header>
-              <h1>
-                <a href={getNavLink('/')}>
-                  {
-                    database.Icon && database.Icon.Type === 'emoji' ? (
-                      <>
-                        <span>{database.Icon.Emoji}</span>
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'external' ? (
-                      <>
-                        <img src={database.Icon.Url} alt="Site icon image" />
-                        {database.Title}
-                      </>
-                    ) : database.Icon && database.Icon.Type === 'file' ? (
-                      <>
-                        <img
-                          src={customIconURL}
-                          class="custom-icon"
-                          alt="Site icon image"
-                        />
-                        {database.Title}
-                      </>
-                    ) : (
-                      database.Title
-                    )
-                  }
-                </a>
-              </h1>
+              <div class="title-block">
+                <h1>
+                  <a href={getNavLink('/')}>
+                    {
+                      database.Icon && database.Icon.Type === 'emoji' ? (
+                        <>
+                          <span>{database.Icon.Emoji}</span>
+                          {database.Title}
+                        </>
+                      ) : database.Icon && database.Icon.Type === 'external' ? (
+                        <>
+                          <img src={database.Icon.Url} alt="Site icon image" />
+                          {database.Title}
+                        </>
+                      ) : database.Icon && database.Icon.Type === 'file' ? (
+                        <>
+                          <img
+                            src={customIconURL}
+                            class="custom-icon"
+                            alt="Site icon image"
+                          />
+                          {database.Title}
+                        </>
+                      ) : (
+                        database.Title
+                      )
+                    }
+                  </a>
+                </h1>
+                <div class="social">
+                  <Social platform="twitter" username="misyobun" icon="prime:twitter" alt=""/>
+                  <Social platform="github" username="misyobun" icon="mdi:github" alt=""/>  
+                </div>
+              </div>
+
               <div class="description">
                 {database.Description}
+  
               </div>
             </header>
 
-            <slot name="main" />
-
+            <slot name="main" />   
             <footer>
               <div>
                 <span>Powered by&nbsp;</span>
@@ -206,6 +215,16 @@ if (database.Icon && database.Icon.Type === 'file') {
     div.content {
       padding: 0 18px;
     }
+  }
+
+  div.social {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  div.title-block {
+    display: flex;
+    justify-content: space-between;
   }
 
   main header {
