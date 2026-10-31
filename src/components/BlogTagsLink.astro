@@ -14,51 +14,48 @@ const { heading, tags } = Astro.props
 
 <div class="blog-tags-link">
   <h2>{heading}</h2>
-  {
-    tags.length === 0 ? (
-      <NoContents contents={tags} />
-    ) : (
-      <ul>
-        {tags.map((tag: SelectProperty) => (
-          <li>
-            <a href={getTagLink(tag.name)} class={`tag ${tag.color}`}>
-              {tag.name}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  {tags.length === 0 ? (
+    <NoContents contents={tags} />
+  ) : (
+    <ul>
+      {tags.map((tag: SelectProperty) => (
+        <li>
+          <a href={getTagLink(tag.name)} class={`tag ${tag.color}`}>
+            {tag.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
 </div>
 
 <style>
-  .blog-tags-link {
+  h2 {
+    margin: 0 0 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
-  .blog-tags-link h2 {
-    margin: 0;
-    padding-left: 0.4rem;
-    color: #777;
-    font-size: 0.95rem;
-  }
-  .blog-tags-link ul {
-    list-style-type: none;
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0 0 32px;
     padding: 0;
-    margin-top: 0.3rem;
-    margin-block-end: 1rem;
   }
-  .blog-tags-link ul li {
-    position: relative;
-    padding: 0.4rem;
-    line-height: 1.2rem;
-    font-size: 0.9rem;
-    gap: 6px;
+  li {
+    font-size: 12px;
   }
-  .blog-tags-link ul li a {
-    min-width: 0;
-    border-radius: 3px;
-    padding: 2px 6px;
-    line-height: 1.2;
-    color: rgb(50, 48, 44);
-    background: rgba(227, 226, 224, 0.5);
+  li a {
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: 100px;
+    padding: 5px 12px;
+  }
+  li a:hover {
+    border-color: var(--accent);
   }
 </style>

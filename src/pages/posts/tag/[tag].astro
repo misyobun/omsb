@@ -7,14 +7,9 @@ import {
   getAllTags,
   getNumberOfPagesByTag,
 } from '../../../lib/notion/client.ts'
+import PostCard from '../../../components/PostCard.astro'
 import Layout from '../../../layouts/Layout.astro'
 import NoContents from '../../../components/NoContents.astro'
-import PostDate from '../../../components/PostDate.astro'
-import PostTags from '../../../components/PostTags.astro'
-import PostTitle from '../../../components/PostTitle.astro'
-import PostFeaturedImage from '../../../components/PostFeaturedImage.astro'
-import PostExcerpt from '../../../components/PostExcerpt.astro'
-import ReadMoreLink from '../../../components/ReadMoreLink.astro'
 import Pagination from '../../../components/Pagination.astro'
 import BlogPostsLink from '../../../components/BlogPostsLink.astro'
 import BlogTagsLink from '../../../components/BlogTagsLink.astro'
@@ -35,33 +30,26 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
   getNumberOfPagesByTag(tag),
 ])
 
-const currentTag = posts[0].Tags.find((t) => t.name === tag)
+const currentTag = posts[0]?.Tags.find((t) => t.name === tag)
 ---
 
 <Layout title={`Posts in ${tag}`} path={`/posts/tag/${tag}`}>
   <div slot="main" class={styles.main}>
     <header>
-      <div class="tag-container">
-        <span class={`tag ${currentTag.color}`}>{tag}</span>
-      </div>
+      <h1 class="tag-container">
+        <span class={`tag ${currentTag?.color || 'gray'}`}>{tag}</span>
+      </h1>
     </header>
 
-    {
-      posts.length === 0 ? (
+    <div class={styles.grid}>
+      {posts.length === 0 ? (
         <NoContents contents={posts} />
       ) : (
-        posts.map((post) => (
-          <div class={styles.post} key={post.Slug}>
-            <PostDate post={post} />
-            <PostTitle post={post} />
-            <PostTags post={post} />
-            <PostFeaturedImage post={post} />
-            <PostExcerpt post={post} />
-            <ReadMoreLink post={post} />
-          </div>
+        posts.map((post, index) => (
+          <PostCard post={post} featured={index === 0} />
         ))
-      )
-    }
+      )}
+    </div>
 
     <footer>
       <Pagination tag={tag} currentPage={1} numberOfPages={numberOfPages} />

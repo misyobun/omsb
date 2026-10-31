@@ -4,16 +4,10 @@ import {
   getRankedPosts,
   getAllTags,
   getNumberOfPages,
-  getPostsByPage,
 } from '../../../lib/notion/client.ts'
+import PostCard from '../../../components/PostCard.astro'
 import Layout from '../../../layouts/Layout.astro'
 import NoContents from '../../../components/NoContents.astro'
-import PostDate from '../../../components/PostDate.astro'
-import PostTags from '../../../components/PostTags.astro'
-import PostTitle from '../../../components/PostTitle.astro'
-import PostFeaturedImage from '../../../components/PostFeaturedImage.astro'
-import PostExcerpt from '../../../components/PostExcerpt.astro'
-import ReadMoreLink from '../../../components/ReadMoreLink.astro'
 import Pagination from '../../../components/Pagination.astro'
 import BlogPostsLink from '../../../components/BlogPostsLink.astro'
 import BlogTagsLink from '../../../components/BlogTagsLink.astro'
@@ -42,25 +36,23 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
 <Layout title={`Posts ${page}/${numberOfPages}`} path={`/posts/page/${page}`}>
   <div slot="main" class={styles.main}>
     <header>
-      <div class="page-container">{page}/{numberOfPages}</div>
+      <h1 class="page-container">
+        記事一覧{' '}
+        <small>
+          {page} / {numberOfPages}
+        </small>
+      </h1>
     </header>
 
-    {
-      posts.length === 0 ? (
+    <div class={styles.grid}>
+      {posts.length === 0 ? (
         <NoContents contents={posts} />
       ) : (
-        posts.map((post) => (
-          <div class={styles.post} key={post.Slug}>
-            <PostDate post={post} />
-            <PostTitle post={post} />
-            <PostTags post={post} />
-            <PostFeaturedImage post={post} />
-            <PostExcerpt post={post} />
-            <ReadMoreLink post={post} />
-          </div>
+        posts.map((post, index) => (
+          <PostCard post={post} featured={index === 0} />
         ))
-      )
-    }
+      )}
+    </div>
 
     <footer>
       <Pagination

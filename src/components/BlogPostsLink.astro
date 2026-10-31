@@ -13,80 +13,76 @@ const { heading, posts } = Astro.props
 
 <div class="blog-posts-link">
   <h2>{heading}</h2>
-  {
-    posts.length === 0 ? (
-      <NoContents contents={posts} />
-    ) : (
-      <ul>
-        {posts.map((post: Post) => (
-          <li>
-            <a
-              href={getPostLink(post.Slug)}
-              title={`${post.Icon?.Emoji || ''}${post.Title}`}
-            >
-              {post.Icon && post.Icon.Type === 'emoji' ? (
-                <>
-                  <span>{post.Icon.Emoji}</span>
-                  {post.Title}
-                </>
-              ) : post.Icon && post.Icon.Type === 'external' ? (
-                <>
-                  <img
-                    src={post.Icon.Url}
-                    alt="Post title icon in a link list"
-                  />
-                  {post.Title}
-                </>
-              ) : (
-                post.Title
-              )}
-            </a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  {posts.length === 0 ? (
+    <NoContents contents={posts} />
+  ) : (
+    <ul>
+      {posts.map((post: Post) => (
+        <li>
+          <a
+            href={getPostLink(post.Slug)}
+            title={`${post.Icon?.Emoji || ''}${post.Title}`}
+          >
+            {post.Icon && post.Icon.Type === 'emoji' ? (
+              <>
+                <span>{post.Icon.Emoji}</span>
+                {post.Title}
+              </>
+            ) : post.Icon && post.Icon.Type === 'external' ? (
+              <>
+                <img src={post.Icon.Url} alt="Post title icon in a link list" />
+                {post.Title}
+              </>
+            ) : (
+              post.Title
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )}
 </div>
 
 <style>
-  .blog-posts-link {
+  h2 {
+    margin: 0 0 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
-  .blog-posts-link h2 {
-    margin: 0;
-    padding-left: 0.4rem;
-    color: #777;
-    font-size: 0.95rem;
-  }
-  .blog-posts-link ul {
-    list-style-type: none;
+  ul {
+    list-style: none;
+    counter-reset: posts;
     padding: 0;
-    margin-top: 0.4rem;
-    margin-block-end: 1rem;
+    margin: 0 0 32px;
   }
-  .blog-posts-link ul li {
+  li {
+    counter-increment: posts;
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
   }
-  .blog-posts-link ul li a {
+  li::before {
+    content: counter(posts, decimal-leading-zero);
+    font: 10px var(--font-mono);
+    color: var(--accent);
+    padding-top: 4px;
+  }
+  a {
     display: block;
-    border-radius: var(--radius);
-    padding: 0.4rem 0.4rem;
-    line-height: 1.2rem;
-    color: inherit;
-    font-size: 0.95rem;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    font-size: 13px;
+    line-height: 1.7;
   }
-  .blog-posts-link ul li a:hover {
-    background-color: #ddd;
+  a span {
+    margin-right: 4px;
   }
-  .blog-posts-link ul li a span,
-  .blog-posts-link ul li a img {
-    display: inline-block;
-    margin-right: 0.2rem;
-  }
-  .blog-posts-link ul li a img {
-    width: 1.25rem;
-    height: 1.25rem;
-    vertical-align: sub;
+  a img {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    margin-right: 4px;
   }
 </style>

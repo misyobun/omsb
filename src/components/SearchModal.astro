@@ -1,288 +1,212 @@
 ---
+import { getNavLink } from '../lib/blog-helpers'
 ---
 
-<div class="search-modal-container">
-  <div class="overlay"></div>
-
-  <div class="search-modal">
-    <div class="search-prompt">
-      <input type="text" placeholder="Search..." />
-    </div>
-    <div class="search-result">
-      <ul>
-        <li class="selected">
-          <a href="#">
-            <div class="search-result-title"></div>
-            <div class="search-result-description"></div>
-          </a>
-        </li>
-      </ul>
-    </div>
+<dialog
+  class="search-modal"
+  aria-labelledby="search-heading"
+  data-feed={getNavLink('/feed')}
+>
+  <div class="search-top">
+    <h2 id="search-heading">記事を探す</h2>
+    <button class="close-search" aria-label="検索を閉じる" type="button">
+      閉じる <span aria-hidden="true">×</span>
+    </button>
   </div>
-</div>
-
+  <label class="sr-only" for="search-query">
+    キーワード
+  </label>
+  <input
+    id="search-query"
+    type="search"
+    placeholder="気になるキーワードを入力…"
+    autocomplete="off"
+  />
+  <p class="search-status" role="status"></p>
+  <ul class="search-results"></ul>
+</dialog>
 <style>
-  div.search-modal-container {
-    display: none;
-  }
-
-  div.overlay {
-    z-index: 99;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
-  div.search-modal {
-    z-index: 100;
-    position: fixed;
-    top: 100px;
-    left: 20%;
-    width: 60%;
-    border-radius: 6px;
-    background-color: var(--bg);
-  }
-  @media (max-width: 640px) {
-    div.search-modal {
-      left: 0;
-      width: 100%;
-    }
-  }
-
-  div.search-prompt {
-    margin: 6px 0;
-    padding: 0 6px;
-  }
-  div.search-prompt input {
-    width: 100%;
-    border: 0px solid transparent;
-    padding: 0.4rem;
-    background-color: var(--input-bg);
+  .search-modal {
+    width: min(640px, calc(100% - 32px));
+    max-height: 80vh;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
     color: var(--fg);
-    font-size: 1.2rem;
-    line-height: 1.6rem;
+    background: var(--bg);
+    box-shadow: 0 24px 100px #24282230;
   }
-
-  div.search-result {
-    border-top: 1px solid var(--hr-border);
+  .search-modal::backdrop {
+    background: #24282280;
+    backdrop-filter: blur(4px);
   }
-  div.search-result ul {
+  .search-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  h2 {
+    margin: 0;
+    font-size: 22px;
+  }
+  .close-search {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 8px;
+    font-size: 12px;
+  }
+  .close-search span {
+    font-size: 20px;
+    margin-left: 8px;
+  }
+  input {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--fg);
+    font-size: 16px;
+  }
+  .search-status {
+    color: var(--muted);
+    font-size: 12px;
+  }
+  ul {
     list-style: none;
-    margin: 0.3rem;
+    margin: 0;
     padding: 0;
   }
-  div.search-result ul > :global(li) {
-  }
-  div.search-result ul > :global(li > a) {
+  ul :global(a) {
     display: block;
-    padding: 0.4rem 0.6rem;
-    border-radius: var(--radius);
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
   }
-  div.search-result ul > :global(li.selected > a) {
-    background-color: rgba(241, 241, 239, 1);
+  ul :global(strong) {
+    font-size: 15px;
   }
-
-  div.search-result :global(div.search-result-title) {
-    padding: 0.1rem 0;
-    color: var(--fg);
-    font-size: 1.1rem;
-    line-height: 1.2rem;
-    font-weight: bold;
+  ul :global(p) {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 6px 0 0;
   }
-  div.search-result :global(div.search-result-description) {
-    margin: 0 0 0.1rem;
-    color: var(--fg);
-    font-size: 0.9rem;
-    line-height: 1.2rem;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 </style>
-
 <script>
-  document.addEventListener('DOMContentLoaded', async () => {
-    let feedItems = []
-    let fetched = false
-
-    async function openModal() {
-      document.querySelector('.search-modal-container').style.display = 'block'
-      document.querySelector('.search-prompt input').focus()
-
-      if (!fetched) {
-        await fetchRSS()
-      }
-      searchAndRender()
-    }
-
-    function closeModal() {
-      document.querySelector('.search-modal-container').style.display = 'none'
-    }
-
-    function handleKeydown(event) {
-      if (event.keyCode === 13) {
-        // Enter
-        select()
-      } else if (event.keyCode === 27) {
-        // ESC
-        closeModal()
-      } else if (event.keyCode === 38) {
-        // Up
-        selectUp(event)
-      } else if (event.keyCode === 40) {
-        // Down
-        selectDown(event)
-      } else {
-        searchAndRender()
-      }
-    }
-
-    function select() {
-      const a = document.querySelector('.search-result ul > li.selected a')
-      a.click()
-    }
-
-    function selectFirst() {
-      const li = document.querySelector('.search-result ul > li:first-child')
-      if (li) {
-        li.classList.add('selected')
-      }
-    }
-
-    function selectUp(event) {
-      event.preventDefault()
-
-      const ul = document.querySelector('.search-result ul')
-      const selected = ul.querySelector('.selected')
-      if (selected) {
-        selected.classList.remove('selected')
-
-        if (selected.previousElementSibling) {
-          selected.previousElementSibling.classList.add('selected')
-        } else {
-          ul.lastElementChild.classList.add('selected')
-        }
-      } else {
-        ul.lastElementChild.classList.add('selected')
-      }
-    }
-
-    function selectDown(event) {
-      event.preventDefault()
-
-      const ul = document.querySelector('.search-result ul')
-      const selected = ul.querySelector('.selected')
-      if (selected) {
-        selected.classList.remove('selected')
-
-        if (selected.nextElementSibling) {
-          selected.nextElementSibling.classList.add('selected')
-        } else {
-          ul.firstElementChild.classList.add('selected')
-        }
-      } else {
-        ul.firstElementChild.classList.add('selected')
-      }
-    }
-
-    function handleMouseover(event) {
-      Array.from(event.target.closest('ul').children).forEach((element) => {
-        element.classList.remove('selected')
-      })
-      event.target.closest('li').classList.add('selected')
-    }
-
-    function searchAndRender() {
-      const text = document.querySelector('.search-prompt input').value.trim()
-
-      if (text !== '') {
-        const results = search(text)
-        renderResults(results)
-      } else {
-        renderResults(feedItems)
-      }
-
-      selectFirst()
-    }
-
-    function search(query) {
-      const results = []
-      feedItems.forEach((item) => {
-        if (item.title.includes(query) || item?.description?.includes(query)) {
-          results.push(item)
-        }
-      })
-      return results
-    }
-
-    function renderResults(results) {
-      const ul = document.querySelector('.search-result ul')
-      ul.innerHTML = ''
-
-      results.forEach((item) => {
-        const li = document.createElement('li')
-        const a = document.createElement('a')
-        const title = document.createElement('div')
-        const description = document.createElement('div')
-
-        title.classList.add('search-result-title')
-        title.textContent = item.title
-        description.classList.add('search-result-description')
-        description.textContent = item.description
-        a.href = item.link
-
-        li.addEventListener('mouseover', handleMouseover)
-
-        a.appendChild(title)
-        a.appendChild(description)
-        li.appendChild(a)
-        ul.appendChild(li)
-      })
-    }
-
-    async function fetchRSS() {
-      const url = new URL(location.href)
-      const port = url.port ? `:${url.port}` : ''
-
-      const res = await fetch(
-        `${url.protocol}//${url.hostname}${port}/feed`
-      )
-      if (res.status !== 200) {
-        console.log(res.status)
-        throw new Error('Failed to fetch RSS feed')
-      }
-
-      const body = await res.text()
-
-      const parser = new DOMParser()
-      const xml = parser.parseFromString(body, 'text/xml')
-
-      Array.from(xml.getElementsByTagName('item')).forEach((item) => {
-        const title = item.getElementsByTagName('title')[0].textContent
-        const link = item.getElementsByTagName('link')[0].textContent
-        const description =
-          item.getElementsByTagName('description')[0]?.textContent
-        const pubDate = item.getElementsByTagName('pubDate')[0].textContent
-
-        feedItems.push({
-          title,
-          link,
-          description,
-          pubDate,
-        })
-      })
-
-      fetched = true
-    }
-
-    Array.from(document.getElementsByClassName('open-search-modal')).forEach(
-      (element) => {
-        element.addEventListener('click', openModal)
-      }
+  const dialog = document.querySelector<HTMLDialogElement>('.search-modal')!
+  const input = dialog.querySelector<HTMLInputElement>('input')!
+  const results = dialog.querySelector<HTMLUListElement>('.search-results')!
+  const status = dialog.querySelector<HTMLElement>('.search-status')!
+  let items: { title: string; description: string; link: string }[] | null =
+    null
+  let loading = false
+  function render() {
+    if (!items) return
+    const query = input.value.trim().toLocaleLowerCase()
+    const matches = items.filter((item) =>
+      `${item.title} ${item.description}`.toLocaleLowerCase().includes(query)
     )
-    document
-      .getElementsByClassName('overlay')[0]
-      .addEventListener('click', closeModal)
-    document.addEventListener('keydown', handleKeydown)
+    results.replaceChildren()
+    status.textContent = matches.length
+      ? `${matches.length}件の記事`
+      : '該当する記事がありません。別のキーワードでお試しください。'
+    for (const item of matches) {
+      const li = document.createElement('li')
+      const a = document.createElement('a')
+      const title = document.createElement('strong')
+      const description = document.createElement('p')
+      a.href = item.link
+      title.textContent = item.title
+      description.textContent = item.description
+      a.append(title, description)
+      li.append(a)
+      results.append(li)
+    }
+  }
+  async function open() {
+    if (!dialog.open) dialog.showModal()
+    input.focus()
+    if (items) return render()
+    if (loading) return
+    loading = true
+    status.textContent = '記事を読み込んでいます…'
+    try {
+      const response = await fetch(dialog.dataset.feed!)
+      if (!response.ok) throw new Error('Feed unavailable')
+      const xml = new DOMParser().parseFromString(
+        await response.text(),
+        'text/xml'
+      )
+      if (xml.querySelector('parsererror')) throw new Error('Invalid feed')
+      items = Array.from(xml.querySelectorAll('item')).flatMap((item) => {
+        const link = item.querySelector('link')?.textContent || ''
+        try {
+          if (
+            !['https:', 'http:'].includes(new URL(link, location.href).protocol)
+          )
+            return []
+        } catch {
+          return []
+        }
+        return [
+          {
+            title: item.querySelector('title')?.textContent || '',
+            description: item.querySelector('description')?.textContent || '',
+            link,
+          },
+        ]
+      })
+      render()
+    } catch {
+      status.textContent =
+        '記事を読み込めませんでした。検索を開き直してお試しください。'
+    } finally {
+      loading = false
+    }
+  }
+  document
+    .querySelectorAll('.open-search-modal')
+    .forEach((button) => button.addEventListener('click', open))
+  dialog
+    .querySelector('.close-search')!
+    .addEventListener('click', () => dialog.close())
+  dialog.addEventListener('click', (event) => {
+    if (event.target === dialog) {
+      const rect = dialog.getBoundingClientRect()
+      if (
+        event.clientX < rect.left ||
+        event.clientX > rect.right ||
+        event.clientY < rect.top ||
+        event.clientY > rect.bottom
+      )
+        dialog.close()
+    }
+  })
+  input.addEventListener('input', render)
+  input.addEventListener('keydown', (event) => {
+    if (event.isComposing) return
+    if (event.key === 'ArrowDown') {
+      event.preventDefault()
+      results.querySelector('a')?.focus()
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      results.querySelector('a')?.click()
+    }
+  })
+  document.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+      open()
+    }
   })
 </script>

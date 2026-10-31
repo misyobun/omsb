@@ -1,0 +1,205 @@
+---
+import type { Post } from '../lib/interfaces'
+import { getPostLink } from '../lib/blog-helpers'
+import PostDate from './PostDate.astro'
+import PostTags from './PostTags.astro'
+import PostFeaturedImage from './PostFeaturedImage.astro'
+interface Props {
+  post: Post
+  featured?: boolean
+}
+const { post, featured = false } = Astro.props
+---
+
+<article class:list={['post-card', { featured }]}>
+  <a
+    class="card-image"
+    href={getPostLink(post.Slug)}
+    tabindex="-1"
+    aria-hidden="true"
+  >
+    {post.FeaturedImage?.Url ? (
+      <PostFeaturedImage post={post} />
+    ) : (
+      <div class="type-cover">
+        <span class="cover-label">FIELD NOTES</span>
+        <span class="cover-icon">{post.Icon?.Emoji || '＊'}</span>
+        <span class="cover-topic">
+          {post.Tags?.[0]?.name || 'Journal'}
+          <span>↗</span>
+        </span>
+      </div>
+    )}
+  </a>
+  <div class="card-content">
+    <div class="card-meta">
+      {featured && <span class="latest-label">LATEST ENTRY</span>}
+      <PostDate post={post} />
+    </div>
+    <h2>
+      <a href={getPostLink(post.Slug)}>{post.Title}</a>
+    </h2>
+    {post.Excerpt && <p class="excerpt">{post.Excerpt}</p>}
+    <div class="card-bottom">
+      <PostTags post={post} />
+      <a
+        class="read-link"
+        href={getPostLink(post.Slug)}
+        aria-label={`${post.Title}を読む`}
+      >
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</article>
+<style>
+  .post-card {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 24px;
+  }
+  .card-image {
+    display: block;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--surface);
+  }
+  .card-image :global(.post-featured-image) {
+    padding: 0;
+  }
+  .card-image :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    max-height: none;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .post-card:hover .card-image :global(img) {
+    transform: scale(1.025);
+  }
+  .type-cover {
+    aspect-ratio: 16 / 10;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #4b5946;
+    background: #e4e8dc;
+  }
+  .cover-label {
+    font: 9px var(--font-mono);
+    letter-spacing: 0.2em;
+  }
+  .cover-icon {
+    align-self: center;
+    font-size: clamp(50px, 6vw, 80px);
+    line-height: 1;
+  }
+  .cover-topic {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .card-content {
+    padding-top: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .latest-label {
+    font: 9px var(--font-mono);
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  h2 {
+    font-size: 21px;
+    margin: 10px 0 12px;
+    font-weight: 700;
+    line-height: 1.55;
+    letter-spacing: -0.035em;
+  }
+  .excerpt {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.9;
+    margin: 0 0 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-bottom {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .read-link {
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    font-size: 20px;
+  }
+  .read-link:hover {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .featured {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 28px;
+    padding-bottom: 32px;
+  }
+  .featured .card-image {
+    height: 100%;
+  }
+  .featured .card-image :global(.post-featured-image),
+  .featured .card-image :global(img),
+  .featured .type-cover {
+    height: 100%;
+    min-height: 260px;
+  }
+  .featured .card-content {
+    padding: 12px 0;
+  }
+  .featured h2 {
+    font-size: clamp(23px, 2.4vw, 30px);
+  }
+  .featured .excerpt {
+    -webkit-line-clamp: 4;
+  }
+  @media (max-width: 1000px) {
+    .featured {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .featured .card-image :global(img),
+    .featured .type-cover {
+      min-height: 0;
+    }
+  }
+  @media (max-width: 520px) {
+    h2 {
+      font-size: 22px;
+    }
+    .featured h2 {
+      font-size: 26px;
+    }
+  }
+</style>

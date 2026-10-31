@@ -5,7 +5,8 @@ import { getNavLink, getStaticFilePath, filePath } from '../lib/blog-helpers.ts'
 import '../styles/syntax-coloring.css'
 import GoogleAnalytics from '../components/GoogleAnalytics.astro'
 import SearchModal from '../components/SearchModal.astro'
-import Social from '../components/Social.astro'
+import SearchButton from '../components/SearchButton.astro'
+import '../styles/global.css'
 
 export interface Props {
   title: string
@@ -49,8 +50,8 @@ if (database.Icon && database.Icon.Type === 'file') {
 }
 ---
 
-<!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
+<!doctype html>
+<html lang="ja" prefix="og: https://ogp.me/ns#">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="max-image-preview:large" />
@@ -77,378 +78,380 @@ if (database.Icon && database.Icon.Type === 'file') {
   </head>
   <body>
     <GoogleAnalytics trackingId={PUBLIC_GA_TRACKING_ID} />
-    <div class="container">
-      <header>
-        {
-          coverImageURL && (
-            <div class="cover">
-              <img src={coverImageURL} alt="Site cover image" loading="lazy" />
-            </div>
-          )
-        }
+    <a class="skip-link" href="#main-content">
+      本文へスキップ
+    </a>
+    <div class="site-shell">
+      <header class="site-header">
+        <a
+          class="brand"
+          href={getNavLink('/')}
+          aria-label={`${database.Title} ホーム`}
+        >
+          {database.Icon?.Type === 'emoji' ? (
+            <span class="brand-icon">{database.Icon.Emoji}</span>
+          ) : database.Icon?.Type === 'external' ? (
+            <img src={database.Icon.Url} alt="" />
+          ) : customIconURL ? (
+            <img src={customIconURL} alt="" />
+          ) : (
+            <span class="brand-mark" aria-hidden="true">
+              ＊
+            </span>
+          )}
+          <span>{database.Title}</span>
+        </a>
+        <nav aria-label="メインナビゲーション">
+          <a
+            class="archive-link"
+            href={getNavLink('/')}
+            aria-current={path === '/' ? 'page' : undefined}
+          >
+            記事一覧
+          </a>
+          <a class="rss-link" href={getNavLink('/feed')}>
+            RSS <span aria-hidden="true">↗</span>
+          </a>
+          <SearchButton />
+        </nav>
       </header>
 
-      <div>
-        <main>
-          <div class="content">
-            
-            <header>
-              <div class="title-block">
-                <h1>
-                  <a href={getNavLink('/')}>
-                    {
-                      database.Icon && database.Icon.Type === 'emoji' ? (
-                        <>
-                          <span>{database.Icon.Emoji}</span>
-                          {database.Title}
-                        </>
-                      ) : database.Icon && database.Icon.Type === 'external' ? (
-                        <>
-                          <img src={database.Icon.Url} alt="Site icon image" />
-                          {database.Title}
-                        </>
-                      ) : database.Icon && database.Icon.Type === 'file' ? (
-                        <>
-                          <img
-                            src={customIconURL}
-                            class="custom-icon"
-                            alt="Site icon image"
-                          />
-                          {database.Title}
-                        </>
-                      ) : (
-                        database.Title
-                      )
-                    }
-                  </a>
-                </h1>
-                <div class="social">
-                  <Social platform="twitter" username="misyobun" icon="prime:twitter" alt=""/>
-                  <Social platform="github" username="misyobun" icon="mdi:github" alt=""/>  
-                </div>
-              </div>
-
-              <div class="description">
-                {database.Description}
-  
-              </div>
-            </header>
-
-            <slot name="main" />   
-            <footer>
-              <div>
-                <span>Powered by&nbsp;</span>
-                <a href="https://github.com/otoyo/astro-notion-blog"
-                  >astro-notion-blog</a
-                >
-              </div>
-            </footer>
+      {path === '/' && (
+        <section
+          class:list={['intro', { 'with-cover': coverImageURL }]}
+          aria-label="ブログについて"
+        >
+          <div class="intro-copy">
+            <p class="eyebrow">
+              <span class="status-dot" /> A PERSONAL JOURNAL
+            </p>
+            <h1>
+              {database.Title}
+              <span class="title-dot">.</span>
+            </h1>
+            {database.Description && (
+              <p class="description">{database.Description}</p>
+            )}
+            <a class="intro-link" href="#main-content">
+              記事を読む <span aria-hidden="true">↓</span>
+            </a>
           </div>
+          {coverImageURL && (
+            <div class="cover">
+              <img src={coverImageURL} alt="" />
+            </div>
+          )}
+          <span class="intro-index" aria-hidden="true">
+            NOTES / IDEAS / DISCOVERIES
+          </span>
+        </section>
+      )}
+
+      <div
+        class:list={[
+          'content-layout',
+          { 'has-aside': Astro.slots.has('aside') },
+        ]}
+      >
+        <main id="main-content" tabindex="-1">
+          <slot name="main" />
         </main>
+        {Astro.slots.has('aside') && (
+          <aside aria-label="おすすめ記事とカテゴリ">
+            <slot name="aside" />
+          </aside>
+        )}
       </div>
+
+      <footer class="site-footer">
+        <div>
+          <a class="footer-brand" href={getNavLink('/')}>
+            {database.Title}
+            <span class="title-dot">.</span>
+          </a>
+          <p>A collection of everyday discoveries.</p>
+        </div>
+        <div class="footer-right">
+          <div class="social">
+            <a
+              href="https://www.twitter.com/misyobun"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              X / Twitter ↗
+            </a>
+            <a
+              href="https://www.github.com/misyobun"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub ↗
+            </a>
+          </div>
+          <span>
+            Powered by{' '}
+            <a href="https://github.com/otoyo/astro-notion-blog">
+              astro-notion-blog
+            </a>
+          </span>
+        </div>
+      </footer>
     </div>
 
     <SearchModal />
-    {
-      ENABLE_LIGHTBOX && (
-        <script src={getStaticFilePath('/scripts/fslightbox.js')} />
-      )
-    }
+    {ENABLE_LIGHTBOX && (
+      <script src={getStaticFilePath('/scripts/fslightbox.js')} />
+    )}
   </body>
 </html>
 
 <style>
-  .container {
-    min-height: 100vh;
-  }
-
-  .container > div {
-    display: flex;
+  .site-shell {
     max-width: 1280px;
-    margin-right: auto;
-    margin-left: auto;
+    margin: auto;
+    padding: 0 48px;
   }
-  @media (max-width: 640px) {
-    .container > div {
-      display: block;
-    }
-  }
-
-  main {
-    flex: 1;
-    order: 2;
-    justify-content: space-between;
-  }
-  @media (max-width: 640px) {
-    main {
-      order: 1;
-    }
-  }
-
-  aside {
-    order: 1;
-    width: 300px;
-    padding: 20px 20px;
-    background-color: #f4f4f4;
-  }
-  @media (max-width: 640px) {
-    aside {
-      order: 2;
-      width: 100%;
-    }
-  }
-
-  div.cover {
-  }
-  div.cover img {
-    display: block;
-    width: 100%;
-    height: 20vh;
-    object-fit: cover;
-    object-position: center 60%;
-  }
-
-  div.content {
-    padding: 20px 40px;
-  }
-  @media (max-width: 640px) {
-    div.content {
-      padding: 0 18px;
-    }
-  }
-
-  div.social {
+  .site-header {
     display: flex;
-    justify-content: flex-end;
-  }
-
-  div.title-block {
-    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 24px;
+    min-height: 100px;
+    border-bottom: 1px solid var(--line);
   }
-
-  main header {
-    padding: 20px 0 20px;
-  }
-  main header h1 {
-    font-weight: 700;
-    color: #333;
-  }
-  main header h1 a {
-    display: block;
-    color: inherit;
-  }
-  main header h1 a:hover {
-    color: inherit;
-  }
-  main header h1 a span,
-  main header h1 a img {
-    display: inline-block;
-    font-size: 1.1em;
-  }
-  main header h1 a span {
-    margin-right: 0.3em;
-    margin-left: -0.1rem;
-  }
-  main header h1 a img {
-    width: 1.2em;
-    height: 1.2em;
-    margin-right: 0.2em;
-    margin-left: -0.3rem;
-    vertical-align: sub;
-  }
-  main header h1 a img.custom-icon {
-    border-radius: var(--radius);
-  }
-
-  main header div.description {
-    padding: 0.3rem 0 0.6rem;
-    font-size: 0.95rem;
-  }
-
-  main footer {
-    margin: 30px 0 10px;
-    text-align: center;
-    font-size: 0.75rem;
-  }
-  @media (max-width: 640px) {
-    main footer {
-      margin: 0 auto 30px;
-    }
-  }
-  main footer span {
-    color: #777;
-  }
-  main footer a {
-    color: inherit;
-    text-decoration: underline;
-  }
-</style>
-
-<style is:global>
-  :root {
-    --gap-quarter: 0.25rem;
-    --gap-half: 0.5rem;
-    --gap: 1rem;
-    --gap-double: 2rem;
-
-    --bg: #fff;
-    --fg: #333;
-    --accents-1: #666;
-    --accents-2: #666;
-    --accents-3: #666;
-    --geist-foreground: #000;
-    --geist-success: #690;
-
-    --radius: 4px;
-
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
-      'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-      'Helvetica Neue', sans-serif;
-    --font-mono: SFMono-Regular, Menlo, Consolas, 'PT Mono', 'Liberation Mono',
-      Courier, monospace;
-  }
-
-  * {
-    box-sizing: border-box;
-    word-break: break-word;
-  }
-
-  html,
-  body {
-    padding: 0;
-    margin: 0;
-    font-size: 16px;
-  }
-
-  body {
-    min-height: 100vh;
-    background: var(--bg);
+  .brand {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     color: var(--fg);
-    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-      Helvetica, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
-      'Hiragino Sans GB', メイリオ, Meiryo, 'Apple Color Emoji', Arial,
-      sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
-
-    /*background-image: radial-gradient(#ddd 1px, transparent 1px),
-      radial-gradient(#ddd 1px, transparent 1px);*/
-    background-position: 0 0, 25px 25px;
-    background-attachment: fixed;
-    background-size: 50px 50px;
-
-    /* Hack */
-    overflow-x: hidden;
-
-    -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
+    font-weight: 750;
+    font-size: 19px;
+    letter-spacing: -0.04em;
   }
-
-  figure {
-    margin: 0;
-    font-size: 0.85rem;
-    color: #999;
-    line-height: 1.8rem;
+  .brand > span:last-child {
+    overflow-wrap: anywhere;
   }
-
-  a {
-    color: var(--accents-1);
-    text-decoration: none;
+  .brand img {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
   }
-  a:hover {
-    color: var(--accents-1);
+  .brand-mark {
+    color: var(--accent);
+    font-size: 36px;
+    line-height: 1;
   }
-
-  mark {
-    padding: var(--gap-quarter);
-    border-radius: var(--radius);
-    background: rgba(247, 212, 255, 0.8);
-  }
-
-  h1 {
-    margin: 0;
-    color: var(--fg);
-    font-size: 2rem;
-    font-weight: 700;
-  }
-
-  @media (max-width: 640px) {
-    h1 {
-      font-size: 1.6rem;
-    }
-  }
-
-  ol {
-    color: #222;
-    font-weight: 400;
-    font-size: 0.9rem;
-    line-height: 1.8rem;
-  }
-  p,
-  ul {
-    color: #222;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.8rem;
-  }
-  ul,
-  ol {
-    margin: 0;
-    padding-inline-start: 1.5rem;
-  }
-  pre {
-    margin: 0;
-    white-space: pre;
-    tab-size: 2;
-  }
-  pre :global(code) {
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    margin: 0.3rem 0;
-    background-color: #333;
-  }
-
-  code {
-    font-size: 0.9rem;
-    background: rgba(135, 131, 120, 0.15);
-    color: #eb5757;
-    padding: 0.25rem;
-    border-radius: var(--radius);
-    font-family: var(--font-mono);
-  }
-
-  table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-collapse: collapse;
-  }
-
-  table tr {
-    vertical-align: top;
-  }
-
-  table th {
+  nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-shrink: 0;
+    font-size: 13px;
     font-weight: 600;
-    background-color: #f4f4f4;
   }
-
-  table td,
-  table th {
-    font-size: 0.9rem;
-    border: 1px solid #e4e4e4;
-    padding: 0.5rem 1rem;
-    text-align: left;
-    line-height: 1.2rem;
+  nav a[aria-current] {
+    color: var(--accent);
   }
-  table td::after {
-    content: '';
-    display: inline-block;
-    min-height: 0.9rem;
+  .intro {
+    position: relative;
+    padding: 76px 0 64px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+  }
+  .intro.with-cover {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 48px;
+    align-items: center;
+  }
+  .intro h1 {
+    font-size: clamp(44px, 6.5vw, 86px);
+    line-height: 1.12;
+    letter-spacing: -0.065em;
+    font-weight: 800;
+    margin: 24px 0;
+    overflow-wrap: anywhere;
+  }
+  .title-dot {
+    color: var(--accent);
+  }
+  .description {
+    max-width: 540px;
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.9;
+  }
+  .intro-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+    margin-top: 24px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .intro-link span {
+    color: var(--accent);
+    font-size: 22px;
+  }
+  .cover {
+    transform: rotate(2deg);
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .cover img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    display: block;
+    object-fit: cover;
+  }
+  .intro-index {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+  .content-layout {
+    padding: 40px 0 80px;
+  }
+  .has-aside {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 64px;
+  }
+  main {
+    min-width: 0;
+  }
+  aside {
+    min-width: 0;
+    padding-top: 8px;
+  }
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    padding: 36px 0;
+    border-top: 1px solid var(--line);
+  }
+  .footer-brand {
+    font-size: 24px;
+    font-weight: 750;
+    letter-spacing: -0.04em;
+  }
+  .site-footer p,
+  .footer-right > span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .footer-right {
+    text-align: right;
+  }
+  .social {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    font-size: 12px;
+  }
+  @media (min-width: 761px) {
+    .intro:not(.with-cover) .intro-copy {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      column-gap: 48px;
+      align-items: center;
+    }
+    .intro:not(.with-cover) .eyebrow {
+      grid-column: 1 / -1;
+      margin-bottom: 22px;
+    }
+    .intro:not(.with-cover) h1 {
+      grid-column: 1;
+      grid-row: 2 / 4;
+      margin: 0;
+    }
+    .intro:not(.with-cover) .description {
+      grid-column: 2;
+      margin: 0;
+    }
+    .intro:not(.with-cover) .intro-link {
+      grid-column: 2;
+      justify-self: start;
+      margin-top: 16px;
+    }
+  }
+  @media (max-width: 1000px) {
+    .has-aside {
+      gap: 32px;
+      grid-template-columns: minmax(0, 1fr) 200px;
+    }
+    .site-shell {
+      padding: 0 28px;
+    }
+  }
+  @media (max-width: 760px) {
+    .site-shell {
+      padding: 0 20px;
+    }
+    .site-header {
+      min-height: 80px;
+      gap: 12px;
+    }
+    .brand {
+      font-size: 16px;
+    }
+    nav {
+      gap: 14px;
+    }
+    .rss-link {
+      display: none;
+    }
+    .intro,
+    .intro.with-cover {
+      padding: 44px 0 52px;
+      margin-bottom: 12px;
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .intro h1 {
+      font-size: clamp(40px, 10vw, 64px);
+    }
+    .cover {
+      max-width: 100%;
+      transform: none;
+    }
+    .cover img {
+      aspect-ratio: 16 / 9;
+    }
+    .has-aside {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    aside {
+      border-top: 1px solid var(--line);
+      padding-top: 32px;
+    }
+    .content-layout {
+      padding: 28px 0 48px;
+    }
+    .site-footer {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+    .footer-right {
+      text-align: left;
+    }
+    .social {
+      justify-content: flex-start;
+    }
+  }
+  @media (max-width: 380px) {
+    .archive-link {
+      display: none;
+    }
   }
 </style>

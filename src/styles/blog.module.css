@@ -1,22 +1,74 @@
-.main header {
-  padding: 0 0 20px;
+.main {
+  min-width: 0;
 }
-.main footer {
-  border-top: 1px dashed #888;
-  margin: 0 auto;
-  padding: 40px 0 0;
+.main > header {
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
 }
-@media (max-width: 640px) {
-  .main footer {
-    margin: 0 auto 40px;
-  }
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
 }
-
+.sectionHeading h2 {
+  font-size: 22px;
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+.sectionHeading span {
+  color: var(--muted);
+  font: 10px var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 36px 28px;
+}
+.main > footer {
+  margin-top: 40px;
+}
 .post {
-  margin: 0 auto 40px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.post > :global(.post-title) {
+  font-size: clamp(28px, 3.8vw, 44px);
+  line-height: 1.4;
+  margin: 16px 0 24px;
+  letter-spacing: -0.04em;
+}
+.post > :global(.post-tags) {
+  margin-bottom: 40px;
+}
+.post :global(.post-body) {
+  font-size: 16px;
+  line-height: 1.95;
+}
+.post :global(.post-body h2),
+.post :global(.post-body h3),
+.post :global(.post-body h4),
+.post :global(.post-body h5) {
+  margin-top: 2.5rem;
 }
 .post footer {
-  margin-top: 0.5rem;
-  padding: 0;
-  border: 0;
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.aside {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .sectionHeading h2 {
+    font-size: 20px;
+  }
 }

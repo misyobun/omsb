@@ -22,19 +22,33 @@ for (let i = startPage; i <= endPage; i++) {
 }
 ---
 
-<div class="pagination">
-  <a href={getPageLink(1, tag)} class={isFirstPage && 'inactive'}>&lt;&lt;</a>
-  {
-    pages.map((p: number) => (
-      <a href={getPageLink(p, tag)} class={p === currentPage && 'inactive'}>
+{numberOfPages > 1 && (
+  <nav class="pagination" aria-label="ページ切り替え">
+    <a
+      href={getPageLink(1, tag)}
+      aria-label="最初のページ"
+      class={isFirstPage && 'inactive'}
+    >
+      &lt;&lt;
+    </a>
+    {pages.map((p: number) => (
+      <a
+        href={getPageLink(p, tag)}
+        aria-current={p === currentPage ? 'page' : undefined}
+        class={p === currentPage && 'inactive'}
+      >
         {p}
       </a>
-    ))
-  }
-  <a href={getPageLink(numberOfPages, tag)} class={isLastPage && 'inactive'}
-    >&gt;&gt;</a
-  >
-</div>
+    ))}
+    <a
+      href={getPageLink(numberOfPages, tag)}
+      aria-label="最後のページ"
+      class={isLastPage && 'inactive'}
+    >
+      &gt;&gt;
+    </a>
+  </nav>
+)}
 
 <style>
   .pagination {
@@ -51,19 +65,23 @@ for (let i = startPage; i <= endPage; i++) {
     height: 3rem;
     margin: 0 0.4rem;
     border-radius: var(--radius);
-    background: #f4f4f4;
+    background: var(--surface);
     color: inherit;
     font-size: 0.85rem;
     text-align: center;
-    text-decoration: underline;
+    text-decoration: none;
     font-weight: 500;
     line-height: 3rem;
   }
   .pagination a:hover:not(.inactive) {
-    background: #ddd;
+    background: var(--line);
   }
   .pagination a.inactive {
     color: #999;
     text-decoration: none;
+  }
+  .pagination a[aria-current='page'] {
+    background: var(--fg);
+    color: var(--bg);
   }
 </style>

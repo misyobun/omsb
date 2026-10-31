@@ -1,45 +1,51 @@
 ---
-import { Icon } from 'astro-icon'
 ---
 
-<button class="search-button open-search-modal" type="button"><Icon name="octicon:search-24" /><span>Search</span></button>
-
+<button
+  class="search-button open-search-modal"
+  type="button"
+  aria-label="記事を検索"
+  aria-haspopup="dialog"
+>
+  <svg
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.7"
+    aria-hidden="true"
+  >
+    <circle cx="10.5" cy="10.5" r="6.5" />
+    <path d="m16 16 4.5 4.5" />
+  </svg>
+  <span>検索</span>
+</button>
 <style>
   .search-button {
-    display: flex;
-    width: 100%;
-    background-color: transparent;
-    margin-bottom: 0.5rem;
-    border: none;
-    border-radius: var(--radius);
-    padding: 0.4rem 0.4rem;
-    color: #777;
-    font-size: 0.95rem;
-    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    background: var(--fg);
+    color: var(--bg);
+    border: 1px solid var(--fg);
+    border-radius: 100px;
+    padding: 10px 17px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
   }
   .search-button:hover {
-    cursor: pointer;
-    background-color: #ddd;
+    background: var(--accent);
+    border-color: var(--accent);
   }
-  .search-button svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 0.2rem;
-  }
-  [astro-icon="octicon:search-24"] {
-    color: var(--fg);
+  @media (max-width: 520px) {
+    .search-button {
+      padding: 11px;
+    }
+    .search-button span {
+      display: none;
+    }
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    function handleKeydown(event) {
-      if (event.keyCode === 75 && event.metaKey) {
-        // Ctrl+K or Cmd+K
-        document.querySelector('.open-search-modal').click()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeydown)
-  })
-</script>

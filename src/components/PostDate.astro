@@ -9,13 +9,16 @@ export interface Props {
 const { post } = Astro.props
 ---
 
-<div class="post-date">
+<time class="post-date" datetime={post.Date || undefined}>
   {post.Date ? getDateStr(post.Date) : ''}
-</div>
+</time>
 
 <style>
   .post-date {
     padding: 0 0 0.3rem;
-    font-size: 0.9rem;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    letter-spacing: 0.04em;
   }
 </style>

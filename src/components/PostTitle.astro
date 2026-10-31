@@ -9,46 +9,45 @@ export interface Props {
 
 const { post, enableLink = true } = Astro.props
 
-let title = post.Title
+const title = post.Title
+const Heading = enableLink ? 'h2' : 'h1'
 ---
 
-<h2 class="post-title">
-  {
-    enableLink ? (
-      <a href={getPostLink(post.Slug)}>
-        {post.Icon && post.Icon.Type === 'emoji' ? (
-          <>
-            <span>{post.Icon.Emoji}</span>
-            {title}
-          </>
-        ) : post.Icon && post.Icon.Type === 'external' ? (
-          <>
-            <img src={post.Icon.Url} alt="Post title icon" />
-            {title}
-          </>
-        ) : (
-          title
-        )}
-      </a>
-    ) : (
-      <>
-        {post.Icon && post.Icon.Type === 'emoji' ? (
-          <>
-            <span>{post.Icon.Emoji}</span>
-            {title}
-          </>
-        ) : post.Icon && post.Icon.Type === 'external' ? (
-          <>
-            <img src={post.Icon.Url} alt="Post title icon" />
-            {title}
-          </>
-        ) : (
-          title
-        )}
-      </>
-    )
-  }
-</h2>
+<Heading class="post-title">
+  {enableLink ? (
+    <a href={getPostLink(post.Slug)}>
+      {post.Icon && post.Icon.Type === 'emoji' ? (
+        <>
+          <span>{post.Icon.Emoji}</span>
+          {title}
+        </>
+      ) : post.Icon && post.Icon.Type === 'external' ? (
+        <>
+          <img src={post.Icon.Url} alt="Post title icon" />
+          {title}
+        </>
+      ) : (
+        title
+      )}
+    </a>
+  ) : (
+    <>
+      {post.Icon && post.Icon.Type === 'emoji' ? (
+        <>
+          <span>{post.Icon.Emoji}</span>
+          {title}
+        </>
+      ) : post.Icon && post.Icon.Type === 'external' ? (
+        <>
+          <img src={post.Icon.Url} alt="Post title icon" />
+          {title}
+        </>
+      ) : (
+        title
+      )}
+    </>
+  )}
+</Heading>
 
 <style>
   .post-title {
