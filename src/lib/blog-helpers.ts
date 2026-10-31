@@ -98,7 +98,7 @@ export const buildURLToHTMLMap = async (
 
       return fetch(url.toString(), { signal: controller.signal })
         .then((res) => {
-          return res.text()
+          return res.ok ? res.text() : ''
         })
         .catch(() => {
           console.log('Request was aborted')

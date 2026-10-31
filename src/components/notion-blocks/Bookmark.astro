@@ -20,16 +20,14 @@ let metadata: Record<string, string>
 try {
   url = new URL(urlString)
 
-  if (!isAmazonURL(url)) {
-    const metascraper = createMetascraper([
-      metascraperDescription(),
-      metascraperImage(),
-      metascraperTitle(),
-    ])
-    const html = urlMap[url.toString()]
-    if (html) {
-      metadata = await metascraper({ html, url })
-    }
+  const metascraper = createMetascraper([
+    metascraperDescription(),
+    metascraperImage(),
+    metascraperTitle(),
+  ])
+  const html = urlMap[url.toString()]
+  if (html) {
+    metadata = await metascraper({ html, url: url.toString() })
   }
 } catch (err) {
   console.log(err)
@@ -39,15 +37,15 @@ try {
 {
   url && (
     <>
-      {isAmazonURL(url) ? (
+      {isAmazonURL(url) && !metadata?.image ? (
         <div class="no-metadata">
           <a href={url.toString()}>{url.toString()}</a>
         </div>
       ) : (
-        <div class="bookmark">
+        <div class:list={['bookmark', { amazon: isAmazonURL(url) }]}>
           <a href={url.toString()} target="_blank" rel="noopener noreferrer">
             <div>
-              <div>{metadata && metadata.title}</div>
+              <div>{metadata?.title || url.toString()}</div>
               <div>{metadata && metadata.description}</div>
               <div>
                 <div>
@@ -64,7 +62,7 @@ try {
               {metadata && metadata.image && (
                 <img
                   src={metadata.image}
-                  alt="Site image of the bookmark"
+                  alt={metadata?.title || 'Site image of the bookmark'}
                   loading="lazy"
                 />
               )}
@@ -150,8 +148,11 @@ try {
     flex: 1 1 180px;
     position: relative;
   }
+  .bookmark.amazon > a > div:last-child > img {
+    object-fit: contain;
+  }
   @media (max-width: 640px) {
-    .bookmark > a > div:last-child {
+    .bookmark:not(.amazon) > a > div:last-child {
       display: none;
     }
   }
