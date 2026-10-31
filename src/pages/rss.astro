@@ -1,0 +1,113 @@
+---
+import Layout from '../layouts/Layout.astro'
+import { getNavLink } from '../lib/blog-helpers'
+
+const feedURL = new URL(getNavLink('/feed.xml'), Astro.site).toString()
+---
+
+<Layout title="RSSで購読" path="/rss">
+  <section slot="main" class="rss-guide" aria-labelledby="rss-title">
+    <p class="eyebrow">FOLLOW THE JOURNAL</p>
+    <h1 id="rss-title">RSSで、新しい記事を受け取る。</h1>
+    <p>
+      RSSリーダーに下のURLを登録すると、新しい記事をまとめてチェックできます。
+    </p>
+    <label for="feed-url">購読用URL</label>
+    <div class="feed-address">
+      <input id="feed-url" type="url" value={feedURL} readonly />
+      <button id="copy-feed" type="button" hidden>
+        URLをコピー
+      </button>
+    </div>
+    <p id="copy-status" role="status" aria-live="polite"></p>
+    <p class="hint">
+      URLをコピーして、お使いのRSSリーダーの「フィードを追加」や「購読」に貼り付けてください。
+    </p>
+    <a class="xml-link" href={getNavLink('/feed.xml')}>
+      RSSデータ（XML）を開く ↗
+    </a>
+    <p class="hint">
+      XMLを直接開くと、お使いのブラウザによってはダウンロードされる場合があります。購読には上のURLをご利用ください。
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .rss-guide {
+    max-width: 720px;
+    padding: 24px 0 56px;
+  }
+  h1 {
+    margin: 20px 0 24px;
+    font-size: clamp(28px, 4vw, 40px);
+  }
+  label {
+    display: block;
+    margin: 32px 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .feed-address {
+    display: flex;
+    gap: 12px;
+  }
+  input {
+    flex: 1;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--input-bg);
+    color: var(--fg);
+    font-size: 16px;
+  }
+  button {
+    border: 0;
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    background: var(--fg);
+    color: var(--bg);
+    white-space: nowrap;
+    font-size: 13px;
+  }
+  button:hover {
+    background: var(--accent);
+  }
+  #copy-status {
+    min-height: 1.7em;
+    font-size: 13px;
+  }
+  .hint {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .xml-link {
+    display: inline-block;
+    margin-top: 20px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  @media (max-width: 520px) {
+    .feed-address {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('#feed-url')!
+  const button = document.querySelector<HTMLButtonElement>('#copy-feed')!
+  const status = document.querySelector<HTMLElement>('#copy-status')!
+  button.hidden = false
+  input.addEventListener('click', () => input.select())
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(input.value)
+      status.textContent = '購読用URLをコピーしました。'
+    } catch {
+      input.focus()
+      input.select()
+      status.textContent = 'URLを選択しました。手動でコピーしてください。'
+    }
+  })
+</script>

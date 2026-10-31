@@ -7,8 +7,9 @@ import PostFeaturedImage from './PostFeaturedImage.astro'
 interface Props {
   post: Post
   featured?: boolean
+  previewImage?: string
 }
-const { post, featured = false } = Astro.props
+const { post, featured = false, previewImage = '' } = Astro.props
 ---
 
 <article class:list={['post-card', { featured }]}>
@@ -20,6 +21,10 @@ const { post, featured = false } = Astro.props
   >
     {post.FeaturedImage?.Url ? (
       <PostFeaturedImage post={post} />
+    ) : previewImage ? (
+      <div class="post-featured-image">
+        <img src={previewImage} alt={post.Title} loading="lazy" />
+      </div>
     ) : (
       <div class="type-cover">
         <span class="cover-label">FIELD NOTES</span>
@@ -70,6 +75,7 @@ const { post, featured = false } = Astro.props
     padding: 0;
   }
   .card-image :global(img) {
+    display: block;
     width: 100%;
     aspect-ratio: 16 / 10;
     max-height: none;

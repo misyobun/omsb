@@ -7,6 +7,7 @@ import {
   getNumberOfPages,
 } from '../lib/notion/client.ts'
 import PostCard from '../components/PostCard.astro'
+import { getPostPreviewImage } from '../lib/post-preview'
 import Layout from '../layouts/Layout.astro'
 import NoContents from '../components/NoContents.astro'
 import Pagination from '../components/Pagination.astro'
@@ -19,6 +20,7 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
   getAllTags(),
   getNumberOfPages(),
 ])
+const previewImages = await Promise.all(posts.map(getPostPreviewImage))
 ---
 
 <Layout>
@@ -32,7 +34,11 @@ const [posts, rankedPosts, tags, numberOfPages] = await Promise.all([
         <NoContents contents={posts} />
       ) : (
         posts.map((post, index) => (
-          <PostCard post={post} featured={index === 0} />
+          <PostCard
+            post={post}
+            featured={index === 0}
+            previewImage={previewImages[index]}
+          />
         ))
       )}
     </div>
